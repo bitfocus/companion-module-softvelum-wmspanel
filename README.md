@@ -1,4 +1,4 @@
-# companion-module-cinegy-capture
+# companion-module-softvelum-wmspanel
 
 See [HELP.md](./companion/HELP.md) and [LICENSE](./LICENSE)
 
