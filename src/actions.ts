@@ -17,8 +17,12 @@ export function UpdateActions(self: ModuleInstance): void {
 				{ id: 'src_strm', type: 'textinput', label: 'Source Stream Name (optional)', default: '' },
 				{ id: 'dest_addr', type: 'textinput', label: 'Destination Address', default: '' },
 				{
-					id: 'dest_port', type: 'number', label: 'Destination Port (optional)',
-					default: 1935, min: 0, max: 65535,
+					id: 'dest_port',
+					type: 'number',
+					label: 'Destination Port (optional)',
+					default: 1935,
+					min: 0,
+					max: 65535,
 				},
 				{ id: 'dest_app', type: 'textinput', label: 'Destination App Name', default: 'live' },
 				{ id: 'dest_strm', type: 'textinput', label: 'Destination Stream Name (optional)', default: '' },
@@ -89,7 +93,7 @@ export function UpdateActions(self: ModuleInstance): void {
 				if (o.dest_strm_params) body.dest_strm_params = await self.parseVariablesInString(String(o.dest_strm_params))
 				if (o.description) body.description = await self.parseVariablesInString(String(o.description))
 				if (o.tags) {
-					const parsedTags = (await self.parseVariablesInString(String(o.tags))).split(',').map(tag => tag.trim())
+					const parsedTags = (await self.parseVariablesInString(String(o.tags))).split(',').map((tag) => tag.trim())
 					body.tags = parsedTags
 				}
 				if (o.auth_schema && o.auth_schema !== 'NONE') body.auth_schema = o.auth_schema
@@ -102,8 +106,8 @@ export function UpdateActions(self: ModuleInstance): void {
 				if (o.other_servers_to_apply) {
 					const serverIds = (await self.parseVariablesInString(String(o.other_servers_to_apply)))
 						.split(',')
-						.map(id => id.trim())
-						.filter(id => id.length > 0)
+						.map((id) => id.trim())
+						.filter((id) => id.length > 0)
 					body.other_servers_to_apply = serverIds
 				}
 
@@ -209,8 +213,8 @@ export function UpdateActions(self: ModuleInstance): void {
 				if (o.tags) {
 					const parsedTags = (await self.parseVariablesInString(String(o.tags)))
 						.split(',')
-						.map(tag => tag.trim())
-						.filter(tag => tag.length > 0)
+						.map((tag) => tag.trim())
+						.filter((tag) => tag.length > 0)
 					body.tags = parsedTags
 				}
 
@@ -225,8 +229,8 @@ export function UpdateActions(self: ModuleInstance): void {
 				if (o.other_servers_to_apply) {
 					const serverIds = (await self.parseVariablesInString(String(o.other_servers_to_apply)))
 						.split(',')
-						.map(id => id.trim())
-						.filter(id => id.length > 0)
+						.map((id) => id.trim())
+						.filter((id) => id.length > 0)
 					body.other_servers_to_apply = serverIds
 				}
 
@@ -255,7 +259,10 @@ export function UpdateActions(self: ModuleInstance): void {
 					const data = resp?.rule
 
 					if (!data || typeof data !== 'object') {
-						self.log('error', `No rule data found for Rule ${ruleId} on Server ${serverId}. Response: ${JSON.stringify(resp)}`)
+						self.log(
+							'error',
+							`No rule data found for Rule ${ruleId} on Server ${serverId}. Response: ${JSON.stringify(resp)}`,
+						)
 						return undefined
 					}
 
@@ -341,8 +348,6 @@ export function UpdateActions(self: ModuleInstance): void {
 			},
 		},
 
-
-
 		//MPEGTS IN
 		CreateIncomingMpegtsStream: {
 			name: 'Create MPEGTS IN Stream',
@@ -414,7 +419,12 @@ export function UpdateActions(self: ModuleInstance): void {
 				{ id: 'rendezvous_port', type: 'number', label: 'Rendezvous Port', default: 0, min: 0, max: 65535 },
 				{ id: 'parameters', type: 'textinput', label: 'Parameters (JSON object)', default: '' },
 				{ id: 'redundancy_addresses', type: 'textinput', label: 'Redundancy Addresses (JSON array)', default: '' },
-				{ id: 'other_servers_to_apply', type: 'textinput', label: 'Other Server IDs (comma separated, max 20)', default: '' },
+				{
+					id: 'other_servers_to_apply',
+					type: 'textinput',
+					label: 'Other Server IDs (comma separated, max 20)',
+					default: '',
+				},
 			],
 			callback: async (event) => {
 				const o = event.options
@@ -435,8 +445,8 @@ export function UpdateActions(self: ModuleInstance): void {
 				if (o.fallback_urls) {
 					body.fallback_urls = (await self.parseVariablesInString(String(o.fallback_urls)))
 						.split(',')
-						.map(url => url.trim())
-						.filter(url => url.length > 0)
+						.map((url) => url.trim())
+						.filter((url) => url.length > 0)
 				}
 				if (o.fallbacks) {
 					try {
@@ -453,8 +463,8 @@ export function UpdateActions(self: ModuleInstance): void {
 				if (o.tags) {
 					body.tags = (await self.parseVariablesInString(String(o.tags)))
 						.split(',')
-						.map(tag => tag.trim())
-						.filter(tag => tag.length > 0)
+						.map((tag) => tag.trim())
+						.filter((tag) => tag.length > 0)
 				}
 				if (o.socket_reuse && o.socket_reuse !== 'Default') {
 					body.socket_reuse = o.socket_reuse
@@ -488,8 +498,8 @@ export function UpdateActions(self: ModuleInstance): void {
 				if (o.other_servers_to_apply) {
 					body.other_servers_to_apply = (await self.parseVariablesInString(String(o.other_servers_to_apply)))
 						.split(',')
-						.map(id => id.trim())
-						.filter(id => id.length > 0)
+						.map((id) => id.trim())
+						.filter((id) => id.length > 0)
 				}
 
 				if (!o.server_id) {
@@ -512,14 +522,18 @@ export function UpdateActions(self: ModuleInstance): void {
 					default: self.mpegtsInCache[0]?.id ?? '',
 				},
 				{
-					id: 'protocol', type: 'dropdown', label: 'Protocol', choices: [
+					id: 'protocol',
+					type: 'dropdown',
+					label: 'Protocol',
+					choices: [
 						{ id: 'http', label: 'HTTP' },
 						{ id: 'hls', label: 'HLS' },
 						{ id: 'udp', label: 'UDP' },
 						{ id: 'srt', label: 'SRT' },
 						{ id: 'rist', label: 'RIST' },
 						{ id: 'zixi', label: 'Zixi' },
-					], default: ''
+					],
+					default: '',
 				},
 				{ id: 'ip', type: 'textinput', label: 'IP Address', default: '' },
 				{ id: 'port', type: 'number', label: 'Port', default: 0, min: 0, max: 65535 },
@@ -528,11 +542,15 @@ export function UpdateActions(self: ModuleInstance): void {
 				{ id: 'description', type: 'textinput', label: 'Description', default: '' },
 				{ id: 'tags', type: 'textinput', label: 'Tags (comma separated)', default: '' },
 				{
-					id: 'socket_reuse', type: 'dropdown', label: 'Socket Reuse', choices: [
+					id: 'socket_reuse',
+					type: 'dropdown',
+					label: 'Socket Reuse',
+					choices: [
 						{ id: 'Enabled', label: 'Enabled' },
 						{ id: 'Disabled', label: 'Disabled' },
 						{ id: 'Default', label: 'Default' },
-					], default: ''
+					],
+					default: '',
 				},
 				{ id: 'multicast_ip', type: 'textinput', label: 'Multicast IP', default: '' },
 				{ id: 'multicast_source_ip', type: 'textinput', label: 'Multicast Source IP', default: '' },
@@ -540,12 +558,16 @@ export function UpdateActions(self: ModuleInstance): void {
 				{ id: 'outgoing_app_name', type: 'textinput', label: 'Outgoing App Name', default: '' },
 				{ id: 'outgoing_stream_name', type: 'textinput', label: 'Outgoing Stream Name', default: '' },
 				{
-					id: 'receive_mode', type: 'dropdown', label: 'Receive Mode', choices: [
+					id: 'receive_mode',
+					type: 'dropdown',
+					label: 'Receive Mode',
+					choices: [
 						{ id: '', label: 'None' },
 						{ id: 'listen', label: 'Listen' },
 						{ id: 'pull', label: 'Pull' },
 						{ id: 'rendezvous', label: 'Rendezvous' },
-					], default: ''
+					],
+					default: '',
 				},
 				{ id: 'rendezvous_ip', type: 'textinput', label: 'Rendezvous IP', default: '' },
 				{ id: 'rendezvous_port', type: 'number', label: 'Rendezvous Port', default: 0, min: 0, max: 65535 },
@@ -573,7 +595,10 @@ export function UpdateActions(self: ModuleInstance): void {
 				await addField('description', o.description)
 
 				if (o.tags) {
-					const parsedTags = (await self.parseVariablesInString(String(o.tags))).split(',').map(t => t.trim()).filter(t => t.length > 0)
+					const parsedTags = (await self.parseVariablesInString(String(o.tags)))
+						.split(',')
+						.map((t) => t.trim())
+						.filter((t) => t.length > 0)
 					body.tags = parsedTags
 				}
 
@@ -606,7 +631,10 @@ export function UpdateActions(self: ModuleInstance): void {
 				}
 
 				if (o.other_servers_to_apply) {
-					const servers = (await self.parseVariablesInString(String(o.other_servers_to_apply))).split(',').map(t => t.trim()).filter(t => t.length > 0)
+					const servers = (await self.parseVariablesInString(String(o.other_servers_to_apply)))
+						.split(',')
+						.map((t) => t.trim())
+						.filter((t) => t.length > 0)
 					body.other_servers_to_apply = servers
 				}
 
@@ -658,7 +686,9 @@ export function UpdateActions(self: ModuleInstance): void {
 						rendezvous_ip: data.rendezvous_ip ?? o.rendezvous_ip,
 						rendezvous_port: data.rendezvous_port ?? o.rendezvous_port,
 						parameters: data.parameters ? JSON.stringify(data.parameters) : o.parameters,
-						redundancy_addresses: data.redundancy_addresses ? JSON.stringify(data.redundancy_addresses) : o.redundancy_addresses,
+						redundancy_addresses: data.redundancy_addresses
+							? JSON.stringify(data.redundancy_addresses)
+							: o.redundancy_addresses,
 					}
 				} catch (error) {
 					self.log('error', `Learn failed for MPEGTS IN Stream ${streamId}: ${error}`)
@@ -756,8 +786,6 @@ export function UpdateActions(self: ModuleInstance): void {
 				await self.apiDelete(apiPath, {})
 			},
 		},
-
-
 
 		//MPEGTS OUT
 		CreateOutgoingMpegtsStream: {
@@ -872,8 +900,8 @@ export function UpdateActions(self: ModuleInstance): void {
 				if (o.tags) {
 					const parsedTags = (await self.parseVariablesInString(String(o.tags)))
 						.split(',')
-						.map(t => t.trim())
-						.filter(t => t.length > 0)
+						.map((t) => t.trim())
+						.filter((t) => t.length > 0)
 					body.tags = parsedTags
 				}
 
@@ -893,14 +921,15 @@ export function UpdateActions(self: ModuleInstance): void {
 					if (o.audio_source_id) body.audio_source.id = await self.parseVariablesInString(String(o.audio_source_id))
 					if (o.audio_source_pid && o.audio_source_pid !== 0) body.audio_source.pid = Number(o.audio_source_pid)
 					if (o.audio_source_index && o.audio_source_index !== 0) body.audio_source.index = Number(o.audio_source_index)
-					if (o.audio_source_language_code) body.audio_source.language_code = await self.parseVariablesInString(String(o.audio_source_language_code))
+					if (o.audio_source_language_code)
+						body.audio_source.language_code = await self.parseVariablesInString(String(o.audio_source_language_code))
 				}
 
 				if (o.other_servers_to_apply) {
 					const servers = (await self.parseVariablesInString(String(o.other_servers_to_apply)))
 						.split(',')
-						.map(t => t.trim())
-						.filter(t => t.length > 0)
+						.map((t) => t.trim())
+						.filter((t) => t.length > 0)
 					body.other_servers_to_apply = servers
 				}
 
@@ -1022,8 +1051,8 @@ export function UpdateActions(self: ModuleInstance): void {
 				if (o.tags) {
 					const parsedTags = (await self.parseVariablesInString(String(o.tags)))
 						.split(',')
-						.map(t => t.trim())
-						.filter(t => t.length > 0)
+						.map((t) => t.trim())
+						.filter((t) => t.length > 0)
 					body.tags = parsedTags
 				}
 
@@ -1043,14 +1072,15 @@ export function UpdateActions(self: ModuleInstance): void {
 					if (o.audio_source_id) body.audio_source.id = await self.parseVariablesInString(String(o.audio_source_id))
 					if (o.audio_source_pid && o.audio_source_pid !== 0) body.audio_source.pid = Number(o.audio_source_pid)
 					if (o.audio_source_index && o.audio_source_index !== 0) body.audio_source.index = Number(o.audio_source_index)
-					if (o.audio_source_language_code) body.audio_source.language_code = await self.parseVariablesInString(String(o.audio_source_language_code))
+					if (o.audio_source_language_code)
+						body.audio_source.language_code = await self.parseVariablesInString(String(o.audio_source_language_code))
 				}
 
 				if (o.other_servers_to_apply) {
 					const servers = (await self.parseVariablesInString(String(o.other_servers_to_apply)))
 						.split(',')
-						.map(t => t.trim())
-						.filter(t => t.length > 0)
+						.map((t) => t.trim())
+						.filter((t) => t.length > 0)
 					body.other_servers_to_apply = servers
 				}
 
@@ -1069,7 +1099,10 @@ export function UpdateActions(self: ModuleInstance): void {
 				const resp = await self.apiGet(`server/${serverId}/mpegts/outgoing/${streamId}`)
 
 				if (!resp || !resp.stream) {
-					self.log('error', `No stream data found for stream ${streamId} on server ${serverId}. Response: ${JSON.stringify(resp)}`)
+					self.log(
+						'error',
+						`No stream data found for stream ${streamId} on server ${serverId}. Response: ${JSON.stringify(resp)}`,
+					)
 					return undefined
 				}
 
@@ -1193,13 +1226,17 @@ export function UpdateActions(self: ModuleInstance): void {
 					default: self.serverCache[0]?.id ?? '',
 				},
 				{
-					id: 'protocol', type: 'dropdown', label: 'Protocol (optional)', choices: [
+					id: 'protocol',
+					type: 'dropdown',
+					label: 'Protocol (optional)',
+					choices: [
 						{ id: '', label: 'Default (UDP)' },
 						{ id: 'udp', label: 'UDP' },
 						{ id: 'srt', label: 'SRT' },
 						{ id: 'rist', label: 'RIST' },
 						{ id: 'zixi', label: 'Zixi' },
-					], default: ''
+					],
+					default: '',
 				},
 				{ id: 'ip', type: 'textinput', label: 'Target IP Address', default: '' },
 				{ id: 'port', type: 'number', label: 'Target Port', default: 0, min: 0, max: 65535 },
@@ -1215,7 +1252,14 @@ export function UpdateActions(self: ModuleInstance): void {
 					default: false,
 				},
 				{ id: 'mux_delay', type: 'number', label: 'Mux Delay (ms, optional)', default: 0, min: 0, max: 214748364 },
-				{ id: 'max_mux_delay', type: 'number', label: 'Max Mux Delay (ms, optional)', default: 0, min: 0, max: 214748364 },
+				{
+					id: 'max_mux_delay',
+					type: 'number',
+					label: 'Max Mux Delay (ms, optional)',
+					default: 0,
+					min: 0,
+					max: 214748364,
+				},
 				{ id: 'mux_rate', type: 'number', label: 'Mux Rate (Kbit/sec, optional)', default: 0, min: 0, max: 214748364 },
 				{
 					id: 'join_audio_frames',
@@ -1223,8 +1267,22 @@ export function UpdateActions(self: ModuleInstance): void {
 					label: 'Join Audio Frames',
 					default: false,
 				},
-				{ id: 'start_cbr_buffer', type: 'number', label: 'Start CBR Buffer (ms, optional)', default: 0, min: 0, max: 214748364 },
-				{ id: 'max_cbr_buffer', type: 'number', label: 'Max CBR Buffer (ms, optional)', default: 0, min: 0, max: 214748364 },
+				{
+					id: 'start_cbr_buffer',
+					type: 'number',
+					label: 'Start CBR Buffer (ms, optional)',
+					default: 0,
+					min: 0,
+					max: 214748364,
+				},
+				{
+					id: 'max_cbr_buffer',
+					type: 'number',
+					label: 'Max CBR Buffer (ms, optional)',
+					default: 0,
+					min: 0,
+					max: 214748364,
+				},
 				{
 					id: 'send_mode',
 					type: 'dropdown',
@@ -1246,8 +1304,22 @@ export function UpdateActions(self: ModuleInstance): void {
 					label: 'Paused on Creation',
 					default: false,
 				},
-				{ id: 'transport_stream_id', type: 'number', label: 'Transport Stream ID (optional)', default: 0, min: 0, max: 8190 },
-				{ id: 'original_network_id', type: 'number', label: 'Original Network ID (optional)', default: 0, min: 0, max: 8190 },
+				{
+					id: 'transport_stream_id',
+					type: 'number',
+					label: 'Transport Stream ID (optional)',
+					default: 0,
+					min: 0,
+					max: 8190,
+				},
+				{
+					id: 'original_network_id',
+					type: 'number',
+					label: 'Original Network ID (optional)',
+					default: 0,
+					min: 0,
+					max: 8190,
+				},
 				{ id: 'parameters_json', type: 'textinput', label: 'Parameters JSON (optional)', default: '' },
 
 				// Sources Handling
@@ -1260,13 +1332,25 @@ export function UpdateActions(self: ModuleInstance): void {
 				},
 
 				// Source Streams
-				{ id: 'src_application', type: 'textinput', label: 'Source Application (if using source_streams)', default: '' },
+				{
+					id: 'src_application',
+					type: 'textinput',
+					label: 'Source Application (if using source_streams)',
+					default: '',
+				},
 				{ id: 'src_stream', type: 'textinput', label: 'Source Stream (if using source_streams)', default: '' },
 				{ id: 'src_pmt_pid', type: 'number', label: 'PMT PID (16-8190)', default: 0, min: 0, max: 8190 },
 				{ id: 'src_video_pid', type: 'number', label: 'Video PID (16-8190)', default: 0, min: 0, max: 8190 },
 				{ id: 'src_audio_pid', type: 'number', label: 'Audio PID (16-8190)', default: 0, min: 0, max: 8190 },
 				{ id: 'src_program_number', type: 'number', label: 'Program Number (optional)', default: 0, min: 0, max: 8190 },
-				{ id: 'src_service_type', type: 'number', label: 'Service Type (1-65535, optional)', default: 0, min: 1, max: 65535 },
+				{
+					id: 'src_service_type',
+					type: 'number',
+					label: 'Service Type (1-65535, optional)',
+					default: 0,
+					min: 1,
+					max: 65535,
+				},
 				{ id: 'src_provider_name', type: 'textinput', label: 'Provider Name (optional)', default: '' },
 				{ id: 'src_service_name', type: 'textinput', label: 'Service Name (optional)', default: '' },
 			],
@@ -1295,8 +1379,8 @@ export function UpdateActions(self: ModuleInstance): void {
 				if (o.tags) {
 					const parsedTags = (await self.parseVariablesInString(String(o.tags)))
 						.split(',')
-						.map(t => t.trim())
-						.filter(t => t.length > 0)
+						.map((t) => t.trim())
+						.filter((t) => t.length > 0)
 					body.tags = parsedTags
 				}
 
@@ -1314,8 +1398,10 @@ export function UpdateActions(self: ModuleInstance): void {
 				if (o.rendezvous_port && o.rendezvous_port !== 0) body.rendezvous_port = Number(o.rendezvous_port)
 				if (o.ttl && o.ttl !== 0) body.ttl = Number(o.ttl)
 				body.paused = !!o.paused
-				if (o.transport_stream_id && o.transport_stream_id !== 0) body.transport_stream_id = Number(o.transport_stream_id)
-				if (o.original_network_id && o.original_network_id !== 0) body.original_network_id = Number(o.original_network_id)
+				if (o.transport_stream_id && o.transport_stream_id !== 0)
+					body.transport_stream_id = Number(o.transport_stream_id)
+				if (o.original_network_id && o.original_network_id !== 0)
+					body.original_network_id = Number(o.original_network_id)
 
 				// parameters JSON
 				if (o.parameters_json) {
@@ -1338,10 +1424,13 @@ export function UpdateActions(self: ModuleInstance): void {
 						video_pid: Number(o.src_video_pid),
 						audio_pid: Number(o.src_audio_pid),
 					}
-					if (o.src_program_number && o.src_program_number !== 0) source_stream.program_number = Number(o.src_program_number)
+					if (o.src_program_number && o.src_program_number !== 0)
+						source_stream.program_number = Number(o.src_program_number)
 					if (o.src_service_type && o.src_service_type !== 0) source_stream.service_type = Number(o.src_service_type)
-					if (o.src_provider_name) source_stream.provider_name = await self.parseVariablesInString(String(o.src_provider_name))
-					if (o.src_service_name) source_stream.service_name = await self.parseVariablesInString(String(o.src_service_name))
+					if (o.src_provider_name)
+						source_stream.provider_name = await self.parseVariablesInString(String(o.src_provider_name))
+					if (o.src_service_name)
+						source_stream.service_name = await self.parseVariablesInString(String(o.src_service_name))
 					body.source_streams = [source_stream]
 				} else {
 					self.log('error', 'You must either provide a Source ID or complete Source Stream fields.')
@@ -1377,7 +1466,14 @@ export function UpdateActions(self: ModuleInstance): void {
 					default: false,
 				},
 				{ id: 'mux_delay', type: 'number', label: 'Mux Delay (ms, optional)', default: 0, min: 0, max: 214748364 },
-				{ id: 'max_mux_delay', type: 'number', label: 'Max Mux Delay (ms, optional)', default: 0, min: 0, max: 214748364 },
+				{
+					id: 'max_mux_delay',
+					type: 'number',
+					label: 'Max Mux Delay (ms, optional)',
+					default: 0,
+					min: 0,
+					max: 214748364,
+				},
 				{ id: 'mux_rate', type: 'number', label: 'Mux Rate (Kbit/sec, optional)', default: 0, min: 0, max: 214748364 },
 				{
 					id: 'join_audio_frames',
@@ -1385,8 +1481,22 @@ export function UpdateActions(self: ModuleInstance): void {
 					label: 'Join Audio Frames',
 					default: false,
 				},
-				{ id: 'start_cbr_buffer', type: 'number', label: 'Start CBR Buffer (ms, optional)', default: 0, min: 0, max: 214748364 },
-				{ id: 'max_cbr_buffer', type: 'number', label: 'Max CBR Buffer (ms, optional)', default: 0, min: 0, max: 214748364 },
+				{
+					id: 'start_cbr_buffer',
+					type: 'number',
+					label: 'Start CBR Buffer (ms, optional)',
+					default: 0,
+					min: 0,
+					max: 214748364,
+				},
+				{
+					id: 'max_cbr_buffer',
+					type: 'number',
+					label: 'Max CBR Buffer (ms, optional)',
+					default: 0,
+					min: 0,
+					max: 214748364,
+				},
 				{
 					id: 'send_mode',
 					type: 'dropdown',
@@ -1408,8 +1518,22 @@ export function UpdateActions(self: ModuleInstance): void {
 					label: 'Paused',
 					default: false,
 				},
-				{ id: 'transport_stream_id', type: 'number', label: 'Transport Stream ID (optional)', default: 0, min: 0, max: 8190 },
-				{ id: 'original_network_id', type: 'number', label: 'Original Network ID (optional)', default: 0, min: 0, max: 8190 },
+				{
+					id: 'transport_stream_id',
+					type: 'number',
+					label: 'Transport Stream ID (optional)',
+					default: 0,
+					min: 0,
+					max: 8190,
+				},
+				{
+					id: 'original_network_id',
+					type: 'number',
+					label: 'Original Network ID (optional)',
+					default: 0,
+					min: 0,
+					max: 8190,
+				},
 				{ id: 'parameters_json', type: 'textinput', label: 'Parameters JSON (optional)', default: '' },
 
 				// Source Handling
@@ -1428,7 +1552,14 @@ export function UpdateActions(self: ModuleInstance): void {
 				{ id: 'src_video_pid', type: 'number', label: 'Video PID (16-8190)', default: 0, min: 0, max: 8190 },
 				{ id: 'src_audio_pid', type: 'number', label: 'Audio PID (16-8190)', default: 0, min: 0, max: 8190 },
 				{ id: 'src_program_number', type: 'number', label: 'Program Number (optional)', default: 0, min: 0, max: 8190 },
-				{ id: 'src_service_type', type: 'number', label: 'Service Type (1-65535, optional)', default: 0, min: 1, max: 65535 },
+				{
+					id: 'src_service_type',
+					type: 'number',
+					label: 'Service Type (1-65535, optional)',
+					default: 0,
+					min: 1,
+					max: 65535,
+				},
 				{ id: 'src_provider_name', type: 'textinput', label: 'Provider Name (optional)', default: '' },
 				{ id: 'src_service_name', type: 'textinput', label: 'Service Name (optional)', default: '' },
 			],
@@ -1455,8 +1586,8 @@ export function UpdateActions(self: ModuleInstance): void {
 				if (o.tags) {
 					const parsedTags = (await self.parseVariablesInString(String(o.tags)))
 						.split(',')
-						.map(t => t.trim())
-						.filter(t => t.length > 0)
+						.map((t) => t.trim())
+						.filter((t) => t.length > 0)
 					body.tags = parsedTags
 				}
 				await addField('local_ip', o.local_ip)
@@ -1486,13 +1617,7 @@ export function UpdateActions(self: ModuleInstance): void {
 				// Handle Source Logic
 				if (o.source_id) {
 					body.source_id = o.source_id
-				} else if (
-					o.src_application &&
-					o.src_stream &&
-					o.src_pmt_pid &&
-					o.src_video_pid &&
-					o.src_audio_pid
-				) {
+				} else if (o.src_application && o.src_stream && o.src_pmt_pid && o.src_video_pid && o.src_audio_pid) {
 					const sourceStream: any = {
 						application: await self.parseVariablesInString(String(o.src_application)),
 						stream: await self.parseVariablesInString(String(o.src_stream)),
@@ -1502,8 +1627,10 @@ export function UpdateActions(self: ModuleInstance): void {
 					}
 					if (o.src_program_number) sourceStream.program_number = Number(o.src_program_number)
 					if (o.src_service_type) sourceStream.service_type = Number(o.src_service_type)
-					if (o.src_provider_name) sourceStream.provider_name = await self.parseVariablesInString(String(o.src_provider_name))
-					if (o.src_service_name) sourceStream.service_name = await self.parseVariablesInString(String(o.src_service_name))
+					if (o.src_provider_name)
+						sourceStream.provider_name = await self.parseVariablesInString(String(o.src_provider_name))
+					if (o.src_service_name)
+						sourceStream.service_name = await self.parseVariablesInString(String(o.src_service_name))
 					body.source_streams = [sourceStream]
 				} else {
 					self.log('info', 'No valid source_id or source_streams provided, sources will remain unchanged.')
@@ -1523,7 +1650,10 @@ export function UpdateActions(self: ModuleInstance): void {
 					const resp = await self.apiGet(`server/${serverId}/mpegts/udp/${streamId}`)
 
 					if (!resp || typeof resp !== 'object' || !('setting' in resp) || !resp.setting) {
-						self.log('error', `Learn failed: No UDP setting data found for stream ${streamId} on server ${serverId}. Response: ${JSON.stringify(resp)}`)
+						self.log(
+							'error',
+							`Learn failed: No UDP setting data found for stream ${streamId} on server ${serverId}. Response: ${JSON.stringify(resp)}`,
+						)
 						return
 					}
 
@@ -1580,12 +1710,10 @@ export function UpdateActions(self: ModuleInstance): void {
 					}
 
 					return newOptions
-
 				} catch (error) {
 					self.log('error', `Error learning options: ${error}`)
 				}
 			},
-
 		},
 		DeleteUdpStream: {
 			name: 'Delete UDP Stream',
@@ -1619,8 +1747,5 @@ export function UpdateActions(self: ModuleInstance): void {
 				}
 			},
 		},
-
 	})
 }
-
-

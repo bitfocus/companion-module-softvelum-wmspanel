@@ -1,15 +1,14 @@
 import { Regex, type SomeCompanionConfigField } from '@companion-module/base'
 
 export interface ModuleConfig {
-	client_id: string,
-	api_key: string,
-	api_url: string,
-	refreshRate: number,
+	client_id: string
+	api_key: string
+	api_url: string
+	refreshRate: number
 }
 
 export function GetConfigFields(): SomeCompanionConfigField[] {
 	return [
-
 		{
 			type: 'textinput',
 			id: 'client_id',

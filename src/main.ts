@@ -30,7 +30,7 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 		super(internal)
 	}
 
-	async init(config: ModuleConfig): Promise<void> {
+	async init(config: ModuleConfig, _isFirstInit: boolean): Promise<void> {
 		this.config = config
 		this.dynamicVariables = []
 
@@ -39,9 +39,10 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 		this.updateActions() // export actions
 		this.updateFeedbacks() // export feedbacks
 		this.updateVariableDefinitions() // export variable definitions
-		this.pollStatus() //initial Status Poll
-		this.pollTimer = setInterval(() => this.pollStatus(), (config.refreshRate*1000))
-
+		void this.pollStatus() //initial Status Poll
+		this.pollTimer = setInterval(() => {
+			void this.pollStatus()
+		}, config.refreshRate * 1000)
 	}
 	// When module gets deleted
 	async destroy(): Promise<void> {
@@ -51,7 +52,6 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 			clearInterval(this.pollTimer)
 			this.pollTimer = undefined
 		}
-
 
 		this.log('debug', 'destroy')
 	}
@@ -77,11 +77,8 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 		UpdateVariableDefinitions(this)
 	}
 
-
-
 	async pollStatus(): Promise<void> {
 		try {
-
 			this.checkFeedbacks()
 
 			//List Updates
@@ -91,13 +88,10 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 			await this.syncAllMpegtsOutChoices()
 			await this.syncAllUdpStreamChoices()
 			await this.checkConnection()
-
-
 		} catch (error) {
 			this.log('error', `Polling error: ${error}`)
 		}
 	}
-
 
 	async apiGet(apimethod: string): Promise<any> {
 		this.log('debug', `Send GET request to ${apimethod}`)
@@ -107,8 +101,8 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 			const response = await fetch(url, {
 				method: 'GET',
 				headers: {
-					'Accept': 'application/json'
-				}
+					Accept: 'application/json',
+				},
 			})
 
 			if (!response.ok) {
@@ -126,14 +120,13 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 				this.log('debug', `Response Text: ${text}`)
 				return text
 			}
-
 		} catch (error) {
 			this.log('error', `GET ${apimethod} failed: ${error}`)
 			return null
 		}
 	}
 
-	async apiPost(apimethod: string, body: any): Promise<any> {
+	async apiPost(apimethod: string, body: Record<string, unknown>): Promise<unknown> {
 		this.log('debug', `Send POST request to ${apimethod}`)
 		const url = `${this.config.api_url}/v1/${apimethod}?client_id=${this.config.client_id}&api_key=${this.config.api_key}`
 		this.log('debug', `API Url: ${url}`)
@@ -161,7 +154,7 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 			return null
 		}
 	}
-	async apiPut(apimethod: string, body: any): Promise<any> {
+	async apiPut(apimethod: string, body: Record<string, unknown>): Promise<unknown> {
 		this.log('debug', `Send PUT request to ${apimethod}`)
 		const url = `${this.config.api_url}/v1/${apimethod}?client_id=${this.config.client_id}&api_key=${this.config.api_key}`
 		this.log('debug', `API Url: ${url}`)
@@ -190,7 +183,7 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 		}
 	}
 
-	async apiDelete(apimethod: string, body: any): Promise<any> {
+	async apiDelete(apimethod: string, body: Record<string, unknown>): Promise<unknown> {
 		this.log('debug', `Send DELETE request to ${apimethod}`)
 		const url = `${this.config.api_url}/v1/${apimethod}?client_id=${this.config.client_id}&api_key=${this.config.api_key}`
 		this.log('debug', `API Url: ${url}`)
@@ -219,7 +212,6 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 		}
 	}
 
-
 	async syncServerChoices(): Promise<void> {
 		try {
 			const data = await this.apiGet('server')
@@ -234,8 +226,7 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 			const newIds = new Set<string>(servers.map((item: any) => item.id))
 
 			const idsEqual =
-				newIds.size === this.serverCacheRawIds.size &&
-				[...newIds].every((id: any) => this.serverCacheRawIds.has(id))
+				newIds.size === this.serverCacheRawIds.size && [...newIds].every((id: any) => this.serverCacheRawIds.has(id))
 
 			if (!idsEqual) {
 				this.serverCache = servers.map((item: any) => ({
@@ -287,14 +278,16 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 			}
 
 			const idsEqual =
-				combinedIds.size === this.ruleCacheRawIds.size &&
-				[...combinedIds].every((id) => this.ruleCacheRawIds.has(id))
+				combinedIds.size === this.ruleCacheRawIds.size && [...combinedIds].every((id) => this.ruleCacheRawIds.has(id))
 
 			if (!idsEqual) {
 				this.ruleCache = combinedRules
 				this.ruleCacheRawIds = combinedIds
 
-				this.log('info', `Updated combined Republish Rules Cache with ${combinedRules.length} entries across all servers.`)
+				this.log(
+					'info',
+					`Updated combined Republish Rules Cache with ${combinedRules.length} entries across all servers.`,
+				)
 				this.updateActions()
 			} else {
 				this.log('debug', 'Combined Republish Rules unchanged, no update needed.')
@@ -338,8 +331,7 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 
 			// Check and update mpegtsInCache for Update/Delete/Control
 			const idsEqual =
-				newIds.size === this.mpegtsInCacheRawIds?.size &&
-				[...newIds].every((id) => this.mpegtsInCacheRawIds.has(id))
+				newIds.size === this.mpegtsInCacheRawIds?.size && [...newIds].every((id) => this.mpegtsInCacheRawIds.has(id))
 
 			if (!idsEqual) {
 				this.mpegtsInCache = newPairs
@@ -369,106 +361,104 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 	}
 
 	async syncAllMpegtsOutChoices(): Promise<void> {
-	try {
-		const newPairs: { id: string; label: string }[] = []
-		const newIds = new Set<string>()
+		try {
+			const newPairs: { id: string; label: string }[] = []
+			const newIds = new Set<string>()
 
-		for (const server of this.serverCache) {
-			const resp = await this.apiGet(`server/${server.id}/mpegts/outgoing`)
-			if (!resp || !Array.isArray(resp.streams)) {
-				this.log('warn', `No MPEGTS OUT streams found for server ${server.label}. Response: ${JSON.stringify(resp)}`)
-				continue
+			for (const server of this.serverCache) {
+				const resp = await this.apiGet(`server/${server.id}/mpegts/outgoing`)
+				if (!resp || !Array.isArray(resp.streams)) {
+					this.log('warn', `No MPEGTS OUT streams found for server ${server.label}. Response: ${JSON.stringify(resp)}`)
+					continue
+				}
+
+				for (const stream of resp.streams) {
+					const combinedId = `${server.id}::${stream.id}`
+					const label = `[${server.label}] ${stream.description || ''} ${stream.application || ''}/${stream.stream || ''}`
+					newPairs.push({
+						id: combinedId,
+						label,
+					})
+					newIds.add(combinedId)
+				}
 			}
 
-			for (const stream of resp.streams) {
-				const combinedId = `${server.id}::${stream.id}`
-				const label = `[${server.label}] ${stream.description || ''} ${stream.application || ''}/${stream.stream || ''}`
-				newPairs.push({
-					id: combinedId,
-					label,
-				})
-				newIds.add(combinedId)
+			const idsEqual =
+				newIds.size === this.mpegtsOutCacheRawIds?.size && [...newIds].every((id) => this.mpegtsOutCacheRawIds.has(id))
+
+			if (!idsEqual) {
+				this.mpegtsOutCache = newPairs
+				this.mpegtsOutCacheRawIds = newIds
+				this.log('info', `Updated MPEGTS OUT Cache with ${newPairs.length} entries.`)
+				this.updateActions()
+			} else {
+				this.log('debug', 'MPEGTS OUT unchanged, no update needed.')
 			}
+		} catch (error) {
+			this.log('error', `Failed to sync MPEGTS OUT Cache: ${error}`)
 		}
-
-		const idsEqual =
-			newIds.size === this.mpegtsOutCacheRawIds?.size &&
-			[...newIds].every((id) => this.mpegtsOutCacheRawIds.has(id))
-
-		if (!idsEqual) {
-			this.mpegtsOutCache = newPairs
-			this.mpegtsOutCacheRawIds = newIds
-			this.log('info', `Updated MPEGTS OUT Cache with ${newPairs.length} entries.`)
-			this.updateActions()
-		} else {
-			this.log('debug', 'MPEGTS OUT unchanged, no update needed.')
-		}
-	} catch (error) {
-		this.log('error', `Failed to sync MPEGTS OUT Cache: ${error}`)
 	}
-}
-async syncAllUdpStreamChoices(): Promise<void> {
-    try {
-        const newPairs: { id: string; label: string }[] = []
-        const newIds = new Set<string>()
+	async syncAllUdpStreamChoices(): Promise<void> {
+		try {
+			const newPairs: { id: string; label: string }[] = []
+			const newIds = new Set<string>()
 
-        for (const server of this.serverCache) {
-            const resp = await this.apiGet(`server/${server.id}/mpegts/udp`)
-            if (!resp || !Array.isArray(resp.settings)) {
-                this.log('warn', `No UDP streams found for server ${server.label}. Response: ${JSON.stringify(resp)}`)
-                continue
-            }
+			for (const server of this.serverCache) {
+				const resp = await this.apiGet(`server/${server.id}/mpegts/udp`)
+				if (!resp || !Array.isArray(resp.settings)) {
+					this.log('warn', `No UDP streams found for server ${server.label}. Response: ${JSON.stringify(resp)}`)
+					continue
+				}
 
-            for (const stream of resp.settings) {
-                const combinedId = `${server.id}::${stream.id}`
-                const displayName = `${server.label} - ${stream.name || ''} ${stream.description ? `(${stream.description})` : ''} ${stream.ip ?? ''}:${stream.port ?? ''}`
-                newPairs.push({
-                    id: combinedId,
-                    label: displayName.trim(),
-                })
-                newIds.add(combinedId)
-            }
-        }
+				for (const stream of resp.settings) {
+					const combinedId = `${server.id}::${stream.id}`
+					const displayName = `${server.label} - ${stream.name || ''} ${stream.description ? `(${stream.description})` : ''} ${stream.ip ?? ''}:${stream.port ?? ''}`
+					newPairs.push({
+						id: combinedId,
+						label: displayName.trim(),
+					})
+					newIds.add(combinedId)
+				}
+			}
 
-        const idsEqual =
-            newIds.size === this.udpStreamCacheRawIds?.size &&
-            [...newIds].every((id) => this.udpStreamCacheRawIds.has(id))
+			const idsEqual =
+				newIds.size === this.udpStreamCacheRawIds?.size && [...newIds].every((id) => this.udpStreamCacheRawIds.has(id))
 
-        if (!idsEqual) {
-            this.udpStreamCache = newPairs
-            this.udpStreamCacheRawIds = newIds
-            this.log('info', `Updated UDP Stream Cache with ${newPairs.length} entries.`)
-            this.updateActions()
-        } else {
-            this.log('debug', 'UDP streams unchanged, no update needed.')
-        }
-    } catch (error) {
-        this.log('error', `Failed to sync UDP Stream Cache: ${error}`)
-    }
-}
-async checkConnection() {
-	try {
-		this.updateStatus(InstanceStatus.Connecting, 'Checking API connection...')
-
-		const resp = await this.apiGet('data_slices')
-
-		if (!resp || resp.status !== 'Ok' || !Array.isArray(resp.data_slices)) {
-			this.updateStatus(InstanceStatus.ConnectionFailure, 'API responded, but invalid data received. Check API Key or IP-Whitelist')
-			this.log('warn', `Connection check failed: ${JSON.stringify(resp)}`)
-			return
+			if (!idsEqual) {
+				this.udpStreamCache = newPairs
+				this.udpStreamCacheRawIds = newIds
+				this.log('info', `Updated UDP Stream Cache with ${newPairs.length} entries.`)
+				this.updateActions()
+			} else {
+				this.log('debug', 'UDP streams unchanged, no update needed.')
+			}
+		} catch (error) {
+			this.log('error', `Failed to sync UDP Stream Cache: ${error}`)
 		}
-
-		const sliceCount = resp.data_slices.length
-		this.updateStatus(InstanceStatus.Ok, `Connected to API (${sliceCount} data slices found)`)
-		this.log('info', `Connection successful. Found ${sliceCount} data slices.`)
-
-	} catch (error) {
-		this.updateStatus(InstanceStatus.ConnectionFailure, 'API unreachable')
-		this.log('error', `API connection test failed: ${error}`)
 	}
-}
+	async checkConnection(): Promise<void> {
+		try {
+			this.updateStatus(InstanceStatus.Connecting, 'Checking API connection...')
 
+			const resp = await this.apiGet('data_slices')
 
+			if (!resp || resp.status !== 'Ok' || !Array.isArray(resp.data_slices)) {
+				this.updateStatus(
+					InstanceStatus.ConnectionFailure,
+					'API responded, but invalid data received. Check API Key or IP-Whitelist',
+				)
+				this.log('warn', `Connection check failed: ${JSON.stringify(resp)}`)
+				return
+			}
+
+			const sliceCount = resp.data_slices.length
+			this.updateStatus(InstanceStatus.Ok, `Connected to API (${sliceCount} data slices found)`)
+			this.log('info', `Connection successful. Found ${sliceCount} data slices.`)
+		} catch (error) {
+			this.updateStatus(InstanceStatus.ConnectionFailure, 'API unreachable')
+			this.log('error', `API connection test failed: ${error}`)
+		}
+	}
 }
 
 runEntrypoint(ModuleInstance, UpgradeScripts)
