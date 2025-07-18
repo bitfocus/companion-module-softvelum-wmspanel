@@ -1815,6 +1815,40 @@ export function UpdateActions(self: ModuleInstance): void {
 				}
 			},
 		},
+		CloneTranscoder: {
+			name: 'Clone Transcoder',
+			options: [
+				{
+					id: 'transcoder_combined_id',
+					type: 'dropdown',
+					label: 'Select Transcoder',
+					choices: self.transcoderCache,
+					default: self.transcoderCache[0]?.id ?? '',
+				},
+			],
+			callback: async (event) => {
+				const o = event.options
+				const combinedId = String(o.transcoder_combined_id ?? '')
+				const [serverId, transcoderId] = combinedId.split('::')
+
+				if (!serverId || !transcoderId) {
+					self.log('error', `Invalid transcoder selection: "${combinedId}"`)
+					return
+				}
+
+				const apiPath = `transcoder/${transcoderId}/clone`
+				try {
+					const result = await self.apiGet(`${apiPath}`)
+					if (result?.status === 'Ok') {
+						self.log('info', `Cloned transcoder ${transcoderId} on server ${serverId}`)
+					} else {
+						self.log('warn', `Clone failed: ${JSON.stringify(result)}`)
+					}
+				} catch (err) {
+					self.log('error', `Failed to Clone transcoder: ${err}`)
+				}
+			},
+		},
 		DeleteTranscoder: {
 			name: 'Delete Transcoder',
 			options: [
