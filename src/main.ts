@@ -25,6 +25,9 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 	mpegtsOutCacheRawIds: Set<string> = new Set()
 	udpStreamCache: { id: string; label: string }[] = []
 	udpStreamCacheRawIds: Set<string> = new Set()
+	transcoderCache: { id: string; label: string }[] = []
+	transcoderCacheRawIds: Set<string> = new Set()
+
 
 	constructor(internal: unknown) {
 		super(internal)
@@ -88,6 +91,7 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 			await this.syncAllMpegtsOutChoices()
 			await this.syncAllUdpStreamChoices()
 			await this.checkConnection()
+			await this.syncAllTranscoderChoices()
 		} catch (error) {
 			this.log('error', `Polling error: ${error}`)
 		}
@@ -211,6 +215,41 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 			return null
 		}
 	}
+	async apiDeleteWithoutBody(apimethod: string): Promise<unknown> {
+		this.log('debug', `Send DELETE request to ${apimethod}`)
+		const url = `${this.config.api_url}/v1/${apimethod}?client_id=${this.config.client_id}&api_key=${this.config.api_key}`
+		this.log('debug', `API Url: ${url}`)
+		//this.log('debug', `Request-Body: ${JSON.stringify(body)}`)
+
+		try {
+			const response = await fetch(url, {
+				method: 'DELETE',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				//body: JSON.stringify(body),
+			})
+
+			const text = await response.text()
+			this.log('debug', `Response-Text: ${text}`)
+
+			try {
+				return JSON.parse(text)
+			} catch {
+				return text
+			}
+		} catch (error) {
+			this.log('error', `DELETE ${apimethod} failed: ${error}`)
+			return null
+		}
+	}
+
+	getServerLabelById(serverId: string): string {
+		const match = this.serverCache.find((s) => s.id === serverId)
+		return match ? match.label : serverId
+	}
+
+
 
 	async syncServerChoices(): Promise<void> {
 		try {
@@ -436,6 +475,42 @@ export class ModuleInstance extends InstanceBase<ModuleConfig> {
 			this.log('error', `Failed to sync UDP Stream Cache: ${error}`)
 		}
 	}
+	async syncAllTranscoderChoices(): Promise<void> {
+		try {
+			const newPairs: { id: string; label: string }[] = []
+			const newIds = new Set<string>()
+
+
+			const resp = await this.apiGet(`transcoder`)
+			if (!resp || !Array.isArray(resp.transcoders)) {
+				this.log('warn', `No Transcoders found. Response: ${JSON.stringify(resp)}`)
+
+			}
+
+			for (const transc of resp.transcoders) {
+				const combinedId = `${transc.server_id}::${transc.id}`
+				const displayName = `${this.getServerLabelById(transc.server_id)} - ${transc.name || ''} ${transc.description ? `(${transc.description})` : ''}`
+				newPairs.push({ id: combinedId, label: displayName.trim() })
+				newIds.add(combinedId)
+			}
+
+
+			const idsEqual =
+				newIds.size === this.transcoderCacheRawIds?.size && [...newIds].every((id) => this.transcoderCacheRawIds.has(id))
+
+			if (!idsEqual) {
+				this.transcoderCache = newPairs
+				this.transcoderCacheRawIds = newIds
+				this.log('info', `Updated Transcoder Cache with ${newPairs.length} entries.`)
+				this.updateActions()
+			} else {
+				this.log('debug', 'Transcoders unchanged, no update needed.')
+			}
+		} catch (error) {
+			this.log('error', `Failed to sync Transcoder Cache: ${error}`)
+		}
+	}
+
 	async checkConnection(): Promise<void> {
 		try {
 			this.updateStatus(InstanceStatus.Connecting, 'Checking API connection...')
